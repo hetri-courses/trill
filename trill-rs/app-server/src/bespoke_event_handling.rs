@@ -681,7 +681,7 @@ pub(crate) async fn apply_bespoke_event_handling(
         }
         EventMsg::Error(ev) => {
             let message = ev.message.clone();
-            let codex_error_info = ev.trill_error_info.clone();
+            let codex_error_info = ev.codex_error_info.clone();
 
             // If this error belongs to an in-flight `thread/rollback` request, fail that request
             // (and clear pending state) so subsequent rollbacks are unblocked.
@@ -702,7 +702,7 @@ pub(crate) async fn apply_bespoke_event_handling(
 
             let turn_error = TurnError {
                 message: ev.message,
-                codex_error_info: ev.trill_error_info.map(V2CodexErrorInfo::from),
+                codex_error_info: ev.codex_error_info.map(V2CodexErrorInfo::from),
                 additional_details: None,
             };
             handle_error(conversation_id, turn_error.clone(), &turn_summary_store).await;
@@ -720,7 +720,7 @@ pub(crate) async fn apply_bespoke_event_handling(
             // but we notify the client.
             let turn_error = TurnError {
                 message: ev.message,
-                codex_error_info: ev.trill_error_info.map(V2CodexErrorInfo::from),
+                codex_error_info: ev.codex_error_info.map(V2CodexErrorInfo::from),
                 additional_details: ev.additional_details,
             };
             outgoing

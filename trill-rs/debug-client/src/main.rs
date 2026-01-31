@@ -69,7 +69,7 @@ fn main() -> Result<()> {
     let approval_policy = parse_approval_policy(&cli.approval_policy)?;
 
     let mut client = AppServerClient::spawn(
-        &cli.trill_bin,
+        &cli.codex_bin,
         &cli.config_overrides,
         output.clone(),
         cli.final_only,

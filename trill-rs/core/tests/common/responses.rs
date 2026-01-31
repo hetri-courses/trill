@@ -26,7 +26,7 @@ use wiremock::http::HeaderValue;
 use wiremock::matchers::method;
 use wiremock::matchers::path_regex;
 
-use crate::test_codex::ApplyPatchModelOutput;
+use crate::test_trill::ApplyPatchModelOutput;
 
 #[derive(Debug, Clone)]
 pub struct ResponseMock {

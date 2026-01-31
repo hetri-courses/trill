@@ -13,7 +13,7 @@ use crate::tools::registry::ToolHandler;
 use crate::tools::registry::ToolKind;
 
 /// Default SearXNG URL - can be overridden via config
-const DEFAULT_SEARXNG_URL: &str = "http://192.168.0.137:8080";
+const DEFAULT_SEARXNG_URL: &str = "http://127.0.0.1:8080";
 const DEFAULT_TIMEOUT_SECS: u64 = 30;
 const DEFAULT_NUM_RESULTS: usize = 10;
 

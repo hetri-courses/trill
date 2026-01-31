@@ -4,9 +4,9 @@ use crate::CodexAuth;
 #[cfg(any(test, feature = "test-support"))]
 use crate::ModelProviderInfo;
 use crate::agent::AgentControl;
-use crate::codex::Codex;
-use crate::codex::CodexSpawnOk;
-use crate::codex::INITIAL_SUBMIT_ID;
+use crate::trill::Codex;
+use crate::trill::CodexSpawnOk;
+use crate::trill::INITIAL_SUBMIT_ID;
 use crate::trill_thread::TrillThread;
 use crate::config::Config;
 use crate::error::CodexErr;
@@ -447,7 +447,7 @@ fn truncate_before_nth_user_message(history: InitialHistory, n: usize) -> Initia
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::codex::make_session_and_context;
+    use crate::trill::make_session_and_context;
     use assert_matches::assert_matches;
     use trill_protocol::models::ContentItem;
     use trill_protocol::models::ReasoningItemReasoningSummary;

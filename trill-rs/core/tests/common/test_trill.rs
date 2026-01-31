@@ -280,7 +280,7 @@ impl TestCodex {
         sandbox_policy: SandboxPolicy,
     ) -> Result<()> {
         let session_model = self.session_configured.model.clone();
-        self.trill
+        self.codex
             .submit(Op::UserTurn {
                 items: vec![UserInput::Text {
                     text: prompt.into(),
@@ -298,7 +298,7 @@ impl TestCodex {
             })
             .await?;
 
-        wait_for_event(&self.trill, |event| {
+        wait_for_event(&self.codex, |event| {
             matches!(event, EventMsg::TurnComplete(_))
         })
         .await;

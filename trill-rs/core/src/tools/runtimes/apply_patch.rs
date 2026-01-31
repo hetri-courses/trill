@@ -48,7 +48,7 @@ impl ApplyPatchRuntime {
 
     fn build_command_spec(req: &ApplyPatchRequest) -> Result<CommandSpec, ToolError> {
         use std::env;
-        let exe = if let Some(path) = &req.trill_exe {
+        let exe = if let Some(path) = &req.codex_exe {
             path.clone()
         } else {
             env::current_exe()

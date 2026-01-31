@@ -1621,6 +1621,7 @@ mod tests {
             model_info: &model_info,
             features: &features,
             web_search_mode: Some(WebSearchMode::Live),
+            searxng_url: "http://127.0.0.1:8080".to_string(),
         });
         let (tools, _) = build_specs(&config, None, &[]).build();
 
@@ -1685,7 +1686,7 @@ mod tests {
             model_info: &model_info,
             features: &features,
             web_search_mode: Some(WebSearchMode::Cached),
-            searxng_url: "http://192.168.0.137:8080".to_string(),
+            searxng_url: "http://127.0.0.1:8080".to_string(),
         });
         let (tools, _) = build_specs(&tools_config, None, &[]).build();
         assert_contains_tool_names(
@@ -1704,7 +1705,7 @@ mod tests {
             model_info: &model_info,
             features: &features,
             web_search_mode: Some(WebSearchMode::Cached),
-            searxng_url: "http://192.168.0.137:8080".to_string(),
+            searxng_url: "http://127.0.0.1:8080".to_string(),
         });
         let (tools, _) = build_specs(&tools_config, None, &[]).build();
         assert!(
@@ -1717,7 +1718,7 @@ mod tests {
             model_info: &model_info,
             features: &features,
             web_search_mode: Some(WebSearchMode::Cached),
-            searxng_url: "http://192.168.0.137:8080".to_string(),
+            searxng_url: "http://127.0.0.1:8080".to_string(),
         });
         let (tools, _) = build_specs(&tools_config, None, &[]).build();
         assert_contains_tool_names(&tools, &["request_user_input"]);
@@ -1735,7 +1736,7 @@ mod tests {
             model_info: &model_info,
             features,
             web_search_mode,
-            searxng_url: "http://192.168.0.137:8080".to_string(),
+            searxng_url: "http://127.0.0.1:8080".to_string(),
         });
         let (tools, _) = build_specs(&tools_config, Some(HashMap::new()), &[]).build();
         let tool_names = tools.iter().map(|t| t.spec.name()).collect::<Vec<_>>();
@@ -1752,7 +1753,7 @@ mod tests {
             model_info: &model_info,
             features: &features,
             web_search_mode: Some(WebSearchMode::Cached),
-            searxng_url: "http://192.168.0.137:8080".to_string(),
+            searxng_url: "http://127.0.0.1:8080".to_string(),
         });
         let (tools, _) = build_specs(&tools_config, None, &[]).build();
 
@@ -1771,7 +1772,7 @@ mod tests {
             model_info: &model_info,
             features: &features,
             web_search_mode: Some(WebSearchMode::Live),
-            searxng_url: "http://192.168.0.137:8080".to_string(),
+            searxng_url: "http://127.0.0.1:8080".to_string(),
         });
         let (tools, _) = build_specs(&tools_config, None, &[]).build();
 
@@ -2014,7 +2015,7 @@ mod tests {
             model_info: &model_info,
             features: &features,
             web_search_mode: Some(WebSearchMode::Live),
-            searxng_url: "http://192.168.0.137:8080".to_string(),
+            searxng_url: "http://127.0.0.1:8080".to_string(),
         });
         let (tools, _) = build_specs(&tools_config, Some(HashMap::new()), &[]).build();
 
@@ -2037,7 +2038,7 @@ mod tests {
             model_info: &model_info,
             features: &features,
             web_search_mode: Some(WebSearchMode::Cached),
-            searxng_url: "http://192.168.0.137:8080".to_string(),
+            searxng_url: "http://127.0.0.1:8080".to_string(),
         });
         let (tools, _) = build_specs(&tools_config, None, &[]).build();
 
@@ -2057,7 +2058,7 @@ mod tests {
             model_info: &model_info,
             features: &features,
             web_search_mode: Some(WebSearchMode::Cached),
-            searxng_url: "http://192.168.0.137:8080".to_string(),
+            searxng_url: "http://127.0.0.1:8080".to_string(),
         });
         let (tools, _) = build_specs(&tools_config, None, &[]).build();
 
@@ -2089,7 +2090,7 @@ mod tests {
             model_info: &model_info,
             features: &features,
             web_search_mode: Some(WebSearchMode::Live),
-            searxng_url: "http://192.168.0.137:8080".to_string(),
+            searxng_url: "http://127.0.0.1:8080".to_string(),
         });
         let (tools, _) = build_specs(
             &tools_config,
@@ -2186,7 +2187,7 @@ mod tests {
             model_info: &model_info,
             features: &features,
             web_search_mode: Some(WebSearchMode::Cached),
-            searxng_url: "http://192.168.0.137:8080".to_string(),
+            searxng_url: "http://127.0.0.1:8080".to_string(),
         });
 
         // Intentionally construct a map with keys that would sort alphabetically.
@@ -2264,7 +2265,7 @@ mod tests {
             model_info: &model_info,
             features: &features,
             web_search_mode: Some(WebSearchMode::Cached),
-            searxng_url: "http://192.168.0.137:8080".to_string(),
+            searxng_url: "http://127.0.0.1:8080".to_string(),
         });
 
         let (tools, _) = build_specs(
@@ -2323,7 +2324,7 @@ mod tests {
             model_info: &model_info,
             features: &features,
             web_search_mode: Some(WebSearchMode::Cached),
-            searxng_url: "http://192.168.0.137:8080".to_string(),
+            searxng_url: "http://127.0.0.1:8080".to_string(),
         });
 
         let (tools, _) = build_specs(
@@ -2379,7 +2380,7 @@ mod tests {
             model_info: &model_info,
             features: &features,
             web_search_mode: Some(WebSearchMode::Cached),
-            searxng_url: "http://192.168.0.137:8080".to_string(),
+            searxng_url: "http://127.0.0.1:8080".to_string(),
         });
 
         let (tools, _) = build_specs(
@@ -2437,7 +2438,7 @@ mod tests {
             model_info: &model_info,
             features: &features,
             web_search_mode: Some(WebSearchMode::Cached),
-            searxng_url: "http://192.168.0.137:8080".to_string(),
+            searxng_url: "http://127.0.0.1:8080".to_string(),
         });
 
         let (tools, _) = build_specs(
@@ -2551,7 +2552,7 @@ Examples of valid command strings:
             model_info: &model_info,
             features: &features,
             web_search_mode: Some(WebSearchMode::Cached),
-            searxng_url: "http://192.168.0.137:8080".to_string(),
+            searxng_url: "http://127.0.0.1:8080".to_string(),
         });
         let (tools, _) = build_specs(
             &tools_config,

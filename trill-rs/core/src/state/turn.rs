@@ -13,7 +13,7 @@ use trill_protocol::models::ResponseInputItem;
 use trill_protocol::request_user_input::RequestUserInputResponse;
 use tokio::sync::oneshot;
 
-use crate::codex::TurnContext;
+use crate::trill::TurnContext;
 use crate::protocol::ReviewDecision;
 use crate::tasks::SessionTask;
 

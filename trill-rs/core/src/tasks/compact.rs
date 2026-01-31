@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use super::SessionTask;
 use super::SessionTaskContext;
-use crate::codex::TurnContext;
+use crate::trill::TurnContext;
 use crate::state::TaskKind;
 use async_trait::async_trait;
 use trill_protocol::user_input::UserInput;

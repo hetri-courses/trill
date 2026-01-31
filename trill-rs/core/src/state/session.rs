@@ -4,7 +4,7 @@ use trill_protocol::models::ResponseItem;
 use std::collections::HashMap;
 use std::collections::HashSet;
 
-use crate::codex::SessionConfiguration;
+use crate::trill::SessionConfiguration;
 use crate::context_manager::ContextManager;
 use crate::protocol::RateLimitSnapshot;
 use crate::protocol::TokenUsage;

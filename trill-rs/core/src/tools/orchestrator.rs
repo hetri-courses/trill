@@ -37,7 +37,7 @@ impl ToolOrchestrator {
         tool: &mut T,
         req: &Rq,
         tool_ctx: &ToolCtx<'_>,
-        turn_ctx: &crate::codex::TurnContext,
+        turn_ctx: &crate::trill::TurnContext,
         approval_policy: AskForApproval,
     ) -> Result<Out, ToolError>
     where

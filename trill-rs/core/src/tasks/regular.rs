@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use crate::codex::TurnContext;
-use crate::codex::run_turn;
+use crate::trill::TurnContext;
+use crate::trill::run_turn;
 use crate::state::TaskKind;
 use async_trait::async_trait;
 use trill_protocol::user_input::UserInput;

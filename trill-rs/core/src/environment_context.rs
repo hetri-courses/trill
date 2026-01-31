@@ -1,4 +1,4 @@
-use crate::codex::TurnContext;
+use crate::trill::TurnContext;
 use crate::shell::Shell;
 use trill_protocol::models::ContentItem;
 use trill_protocol::models::ResponseItem;

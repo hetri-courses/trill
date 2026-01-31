@@ -681,6 +681,7 @@ impl Session {
             model_info: &model_info,
             features: &per_turn_config.features,
             web_search_mode: per_turn_config.web_search_mode,
+            searxng_url: per_turn_config.searxng_url.clone(),
         });
 
         TurnContext {
@@ -2510,11 +2511,11 @@ async fn submission_loop(sess: Arc<Session>, config: Arc<Config>, rx_sub: Receiv
 
 /// Operation handlers
 mod handlers {
-    use crate::codex::Session;
-    use crate::codex::SessionSettingsUpdate;
-    use crate::codex::TurnContext;
+    use crate::trill::Session;
+    use crate::trill::SessionSettingsUpdate;
+    use crate::trill::TurnContext;
 
-    use crate::codex::spawn_review_thread;
+    use crate::trill::spawn_review_thread;
     use crate::config::Config;
 
     use crate::mcp::auth::compute_auth_statuses;
@@ -3165,6 +3166,7 @@ async fn spawn_review_thread(
         model_info: &review_model_info,
         features: &review_features,
         web_search_mode: Some(review_web_search_mode),
+        searxng_url: config.searxng_url.clone(),
     });
 
     let review_prompt = resolved.prompt.clone();

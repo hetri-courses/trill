@@ -5,8 +5,8 @@ use trill_protocol::config_types::ModeKind;
 use trill_protocol::items::TurnItem;
 use tokio_util::sync::CancellationToken;
 
-use crate::codex::Session;
-use crate::codex::TurnContext;
+use crate::trill::Session;
+use crate::trill::TurnContext;
 use crate::error::CodexErr;
 use crate::error::Result;
 use crate::function_tool::FunctionCallError;

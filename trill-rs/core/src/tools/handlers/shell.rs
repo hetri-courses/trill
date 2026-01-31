@@ -3,7 +3,7 @@ use trill_protocol::models::ShellCommandToolCallParams;
 use trill_protocol::models::ShellToolCallParams;
 use std::sync::Arc;
 
-use crate::codex::TurnContext;
+use crate::trill::TurnContext;
 use crate::exec::ExecParams;
 use crate::exec_env::create_env;
 use crate::exec_policy::ExecApprovalRequest;
@@ -33,7 +33,7 @@ struct RunExecLikeArgs {
     tool_name: String,
     exec_params: ExecParams,
     prefix_rule: Option<Vec<String>>,
-    session: Arc<crate::codex::Session>,
+    session: Arc<crate::trill::Session>,
     turn: Arc<TurnContext>,
     tracker: crate::tools::context::SharedTurnDiffTracker,
     call_id: String,
@@ -63,7 +63,7 @@ impl ShellCommandHandler {
 
     fn to_exec_params(
         params: &ShellCommandToolCallParams,
-        session: &crate::codex::Session,
+        session: &crate::trill::Session,
         turn_context: &TurnContext,
     ) -> ExecParams {
         let shell = session.user_shell();
@@ -331,7 +331,7 @@ mod tests {
     use trill_protocol::models::ShellCommandToolCallParams;
     use pretty_assertions::assert_eq;
 
-    use crate::codex::make_session_and_context;
+    use crate::trill::make_session_and_context;
     use crate::exec_env::create_env;
     use crate::is_safe_command::is_known_safe_command;
     use crate::powershell::try_find_powershell_executable_blocking;

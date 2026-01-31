@@ -33,7 +33,7 @@
                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │                    SearXNG (Docker)                              │
-│              http://192.168.0.137:8080                          │
+│              http://127.0.0.1:8080                          │
 │                                                                  │
 │  Endpoints:                                                      │
 │  - /search?q={query}&format=json  (for Search action)           │
@@ -86,7 +86,7 @@ The model calls it like any function, Trill handles it locally via SearXNG.
 
 [web_search]
 provider = "searxng"
-searxng_url = "http://192.168.0.137:8080"
+searxng_url = "http://127.0.0.1:8080"
 include_metadata = true
 timeout_seconds = 30
 ```

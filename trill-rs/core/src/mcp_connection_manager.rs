@@ -62,7 +62,7 @@ use tokio_util::sync::CancellationToken;
 use tracing::instrument;
 use tracing::warn;
 
-use crate::codex::INITIAL_SUBMIT_ID;
+use crate::trill::INITIAL_SUBMIT_ID;
 use crate::config::types::McpServerConfig;
 use crate::config::types::McpServerTransportConfig;
 

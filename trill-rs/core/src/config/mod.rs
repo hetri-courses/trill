@@ -928,7 +928,7 @@ pub struct ConfigToml {
     pub web_search: Option<WebSearchMode>,
 
     /// URL for the local SearXNG instance used for web searches.
-    /// Defaults to "http://192.168.0.137:8080" if not set.
+    /// Defaults to "http://127.0.0.1:8080" if not set.
     pub searxng_url: Option<String>,
 
     /// Nested tools section for feature toggles
@@ -1619,7 +1619,7 @@ impl Config {
             searxng_url: cfg
                 .searxng_url
                 .clone()
-                .unwrap_or_else(|| "http://192.168.0.137:8080".to_string()),
+                .unwrap_or_else(|| "http://127.0.0.1:8080".to_string()),
             use_experimental_unified_exec_tool,
             ghost_snapshot,
             features,
@@ -3827,7 +3827,7 @@ model_verbosity = "high"
                 forced_login_method: None,
                 include_apply_patch_tool: false,
                 web_search_mode: None,
-                searxng_url: "http://192.168.0.137:8080".to_string(),
+                searxng_url: "http://127.0.0.1:8080".to_string(),
                 use_experimental_unified_exec_tool: false,
                 ghost_snapshot: GhostSnapshotConfig::default(),
                 features: Features::with_defaults(),

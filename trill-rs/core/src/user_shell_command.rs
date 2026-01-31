@@ -3,7 +3,7 @@ use std::time::Duration;
 use trill_protocol::models::ContentItem;
 use trill_protocol::models::ResponseItem;
 
-use crate::codex::TurnContext;
+use crate::trill::TurnContext;
 use crate::exec::ExecToolCallOutput;
 use crate::tools::format_exec_output_str;
 
@@ -69,7 +69,7 @@ pub fn user_shell_command_record_item(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::codex::make_session_and_context;
+    use crate::trill::make_session_and_context;
     use crate::exec::StreamOutput;
     use pretty_assertions::assert_eq;
 

@@ -22,11 +22,11 @@ use tokio::time::timeout;
 use tokio_util::sync::CancellationToken;
 
 use crate::AuthManager;
-use crate::codex::Codex;
-use crate::codex::CodexSpawnOk;
-use crate::codex::SUBMISSION_CHANNEL_CAPACITY;
-use crate::codex::Session;
-use crate::codex::TurnContext;
+use crate::trill::Codex;
+use crate::trill::CodexSpawnOk;
+use crate::trill::SUBMISSION_CHANNEL_CAPACITY;
+use crate::trill::Session;
+use crate::trill::TurnContext;
 use crate::config::Config;
 use crate::error::CodexErr;
 use crate::models_manager::manager::ModelsManager;
@@ -450,7 +450,7 @@ mod tests {
         let (tx_events, rx_events) = bounded(1);
         let (tx_sub, rx_sub) = bounded(SUBMISSION_CHANNEL_CAPACITY);
         let (_agent_status_tx, agent_status) = watch::channel(AgentStatus::PendingInit);
-        let (session, ctx, _rx_evt) = crate::codex::make_session_and_context_with_rx().await;
+        let (session, ctx, _rx_evt) = crate::trill::make_session_and_context_with_rx().await;
         let codex = Arc::new(Codex {
             next_id: AtomicU64::new(0),
             tx_sub,
