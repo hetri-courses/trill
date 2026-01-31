@@ -4061,21 +4061,32 @@ impl ChatWidget {
             let description =
                 (!preset.description.is_empty()).then_some(preset.description.to_string());
             let is_current = preset.model.as_str() == self.current_model();
+            let no_reasoning_efforts = preset.supported_reasoning_efforts.is_empty();
             let single_supported_effort = preset.supported_reasoning_efforts.len() == 1;
-            let preset_for_action = preset.clone();
-            let actions: Vec<SelectionAction> = vec![Box::new(move |tx| {
-                let preset_for_event = preset_for_action.clone();
-                tx.send(AppEvent::OpenReasoningPopup {
-                    model: preset_for_event,
-                });
-            })];
+
+            // For models with no reasoning efforts (e.g., OSS models), directly select them.
+            // For models with exactly one effort, OpenReasoningPopup will auto-select it.
+            // Otherwise, open the reasoning popup to let the user choose.
+            let actions: Vec<SelectionAction> = if no_reasoning_efforts {
+                // OSS models: directly select without reasoning popup
+                Self::model_selection_actions(preset.model.clone(), None)
+            } else {
+                let preset_for_action = preset.clone();
+                vec![Box::new(move |tx| {
+                    let preset_for_event = preset_for_action.clone();
+                    tx.send(AppEvent::OpenReasoningPopup {
+                        model: preset_for_event,
+                    });
+                })]
+            };
+
             items.push(SelectionItem {
                 name: preset.display_name.clone(),
                 description,
                 is_current,
                 is_default: preset.is_default,
                 actions,
-                dismiss_on_select: single_supported_effort,
+                dismiss_on_select: no_reasoning_efforts || single_supported_effort,
                 ..Default::default()
             });
         }

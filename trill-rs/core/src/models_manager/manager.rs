@@ -438,8 +438,14 @@ impl ModelsManager {
         remote_models.sort_by(|a, b| a.priority.cmp(&b.priority));
 
         let remote_presets: Vec<ModelPreset> = remote_models.into_iter().map(Into::into).collect();
-        let existing_presets = self.local_models.clone();
-        let mut merged_presets = ModelPreset::merge(remote_presets, existing_presets);
+
+        // For OSS providers, only show their models - don't merge in OpenAI presets
+        let mut merged_presets = if self.is_oss_provider() {
+            remote_presets
+        } else {
+            let existing_presets = self.local_models.clone();
+            ModelPreset::merge(remote_presets, existing_presets)
+        };
         let chatgpt_mode = matches!(
             self.auth_manager.get_internal_auth_mode(),
             Some(AuthMode::Chatgpt)
