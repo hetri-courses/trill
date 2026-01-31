@@ -62,6 +62,7 @@ impl MessageProcessor {
             config.trill_home.clone(),
             auth_manager,
             SessionSource::Mcp,
+            config.model_provider_id.clone(),
         ));
         Self {
             outgoing,

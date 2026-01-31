@@ -74,6 +74,7 @@ impl ThreadManager {
         trill_home: PathBuf,
         auth_manager: Arc<AuthManager>,
         session_source: SessionSource,
+        model_provider_id: String,
     ) -> Self {
         let (thread_created_tx, _) = broadcast::channel(THREAD_CREATED_CHANNEL_CAPACITY);
         Self {
@@ -83,6 +84,7 @@ impl ThreadManager {
                 models_manager: Arc::new(ModelsManager::new(
                     trill_home.clone(),
                     auth_manager.clone(),
+                    model_provider_id,
                 )),
                 skills_manager: Arc::new(SkillsManager::new(trill_home)),
                 auth_manager,

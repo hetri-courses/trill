@@ -79,12 +79,26 @@ pub(crate) fn with_config_overrides(mut model: ModelInfo, config: &Config) -> Mo
     if let Some(supports_reasoning_summaries) = config.model_supports_reasoning_summaries {
         model.supports_reasoning_summaries = supports_reasoning_summaries;
     }
-    if let Some(context_window) = config.model_context_window {
+
+    // Check for per-model settings first, then fall back to global settings
+    let model_settings = config.model_settings.get(&model.slug);
+
+    // Apply context_window: per-model setting > global setting
+    if let Some(context_window) = model_settings
+        .and_then(|s| s.context_window)
+        .or(config.model_context_window)
+    {
         model.context_window = Some(context_window);
     }
-    if let Some(auto_compact_token_limit) = config.model_auto_compact_token_limit {
+
+    // Apply auto_compact_token_limit: per-model setting > global setting
+    if let Some(auto_compact_token_limit) = model_settings
+        .and_then(|s| s.auto_compact_token_limit)
+        .or(config.model_auto_compact_token_limit)
+    {
         model.auto_compact_token_limit = Some(auto_compact_token_limit);
     }
+
     if let Some(token_limit) = config.tool_output_token_limit {
         model.truncation_policy = match model.truncation_policy.mode {
             TruncationMode::Bytes => {

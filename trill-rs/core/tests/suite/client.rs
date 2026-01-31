@@ -542,6 +542,7 @@ async fn prefers_apikey_when_config_prefers_apikey_even_with_chatgpt_tokens() {
         trill_home.path().to_path_buf(),
         auth_manager,
         SessionSource::Exec,
+        "openai".to_string(),
     );
     let NewThread { thread: codex, .. } = thread_manager
         .start_thread(config)

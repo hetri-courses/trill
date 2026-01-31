@@ -9,15 +9,21 @@ use crate::error::CodexErr;
 use crate::error::Result as CoreResult;
 use crate::features::Feature;
 use crate::model_provider_info::ModelProviderInfo;
+use crate::model_provider_info::LMSTUDIO_OSS_PROVIDER_ID;
+use crate::model_provider_info::OLLAMA_CHAT_PROVIDER_ID;
+use crate::model_provider_info::OLLAMA_OSS_PROVIDER_ID;
 use crate::models_manager::collaboration_mode_presets::builtin_collaboration_mode_presets;
 use crate::models_manager::model_info;
 use crate::models_manager::model_presets::builtin_model_presets;
 use trill_api::ModelsClient;
 use trill_api::ReqwestTransport;
 use trill_protocol::config_types::CollaborationModeMask;
+use trill_protocol::openai_models::ConfigShellToolType;
 use trill_protocol::openai_models::ModelInfo;
 use trill_protocol::openai_models::ModelPreset;
+use trill_protocol::openai_models::ModelVisibility;
 use trill_protocol::openai_models::ModelsResponse;
+use trill_protocol::openai_models::TruncationPolicyConfig;
 use http::HeaderMap;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -26,6 +32,7 @@ use tokio::sync::RwLock;
 use tokio::sync::TryLockError;
 use tokio::time::timeout;
 use tracing::error;
+use tracing::warn;
 
 const MODEL_CACHE_FILE: &str = "models_cache.json";
 const DEFAULT_MODEL_CACHE_TTL: Duration = Duration::from_secs(300);
@@ -42,6 +49,9 @@ pub enum RefreshStrategy {
     OnlineIfUncached,
 }
 
+/// Default context window for OSS models when not specified in config.
+const DEFAULT_OSS_CONTEXT_WINDOW: i64 = 8192;
+
 /// Coordinates remote model discovery plus cached metadata on disk.
 #[derive(Debug)]
 pub struct ModelsManager {
@@ -51,13 +61,21 @@ pub struct ModelsManager {
     etag: RwLock<Option<String>>,
     cache_manager: ModelsCacheManager,
     provider: ModelProviderInfo,
+    /// The provider ID (e.g., "openai", "lmstudio", "ollama").
+    model_provider_id: String,
 }
 
 impl ModelsManager {
     /// Construct a manager scoped to the provided `AuthManager`.
     ///
     /// Uses `trill_home` to store cached model metadata and initializes with built-in presets.
-    pub fn new(trill_home: PathBuf, auth_manager: Arc<AuthManager>) -> Self {
+    /// The `model_provider_id` is used to determine whether to fetch models from OSS providers
+    /// (like LM Studio or Ollama) or from the OpenAI API.
+    pub fn new(
+        trill_home: PathBuf,
+        auth_manager: Arc<AuthManager>,
+        model_provider_id: String,
+    ) -> Self {
         let cache_path = trill_home.join(MODEL_CACHE_FILE);
         let cache_manager = ModelsCacheManager::new(cache_path, DEFAULT_MODEL_CACHE_TTL);
         Self {
@@ -67,7 +85,16 @@ impl ModelsManager {
             etag: RwLock::new(None),
             cache_manager,
             provider: ModelProviderInfo::create_openai_provider(),
+            model_provider_id,
         }
+    }
+
+    /// Check if the current provider is an OSS provider (LM Studio, Ollama, etc.).
+    fn is_oss_provider(&self) -> bool {
+        matches!(
+            self.model_provider_id.as_str(),
+            LMSTUDIO_OSS_PROVIDER_ID | OLLAMA_OSS_PROVIDER_ID | OLLAMA_CHAT_PROVIDER_ID
+        )
     }
 
     /// List all available models, refreshing according to the specified strategy.
@@ -174,6 +201,11 @@ impl ModelsManager {
         config: &Config,
         refresh_strategy: RefreshStrategy,
     ) -> CoreResult<()> {
+        // For OSS providers, use the dedicated OSS refresh logic.
+        if self.is_oss_provider() {
+            return self.refresh_oss_models(config, refresh_strategy).await;
+        }
+
         if !config.features.enabled(Feature::RemoteModels)
             || self.auth_manager.get_internal_auth_mode() == Some(AuthMode::ApiKey)
         {
@@ -197,6 +229,142 @@ impl ModelsManager {
                 // Always fetch from network
                 self.fetch_and_update_models().await
             }
+        }
+    }
+
+    /// Refresh models from OSS providers (LM Studio, Ollama, etc.).
+    async fn refresh_oss_models(
+        &self,
+        config: &Config,
+        refresh_strategy: RefreshStrategy,
+    ) -> CoreResult<()> {
+        match refresh_strategy {
+            RefreshStrategy::Offline => {
+                // For offline, just use what we have cached in memory
+                Ok(())
+            }
+            RefreshStrategy::OnlineIfUncached | RefreshStrategy::Online => {
+                // Fetch models from the OSS provider
+                match self.fetch_oss_models(config).await {
+                    Ok(models) => {
+                        *self.remote_models.write().await = models;
+                        Ok(())
+                    }
+                    Err(e) => {
+                        warn!("Failed to fetch models from OSS provider: {e}");
+                        // Don't treat this as fatal - we can still work with cached/default models
+                        Ok(())
+                    }
+                }
+            }
+        }
+    }
+
+    /// Fetch models from an OSS provider (LM Studio or Ollama).
+    async fn fetch_oss_models(&self, config: &Config) -> CoreResult<Vec<ModelInfo>> {
+        let provider = config
+            .model_providers
+            .get(&self.model_provider_id)
+            .ok_or_else(|| {
+                CodexErr::InvalidRequest(format!(
+                    "Provider {} not found in model_providers",
+                    self.model_provider_id
+                ))
+            })?;
+
+        let base_url = provider.base_url.as_ref().ok_or_else(|| {
+            CodexErr::InvalidRequest(format!(
+                "Provider {} has no base_url configured",
+                self.model_provider_id
+            ))
+        })?;
+
+        let client = reqwest::Client::builder()
+            .connect_timeout(Duration::from_secs(5))
+            .build()
+            .unwrap_or_else(|_| reqwest::Client::new());
+
+        let url = format!("{}/models", base_url.trim_end_matches('/'));
+        let response = timeout(MODELS_REFRESH_TIMEOUT, client.get(&url).send())
+            .await
+            .map_err(|_| CodexErr::Timeout)?
+            .map_err(|e| CodexErr::InvalidRequest(format!("Failed to fetch models: {e}")))?;
+
+        if !response.status().is_success() {
+            return Err(CodexErr::InvalidRequest(format!(
+                "Failed to fetch models: HTTP {}",
+                response.status()
+            )));
+        }
+
+        let json: serde_json::Value = response
+            .json::<serde_json::Value>()
+            .await
+            .map_err(|e| CodexErr::InvalidRequest(format!("Failed to parse models response: {e}")))?;
+
+        let model_ids: Vec<String> = json["data"]
+            .as_array()
+            .ok_or_else(|| CodexErr::InvalidRequest("No 'data' array in models response".into()))?
+            .iter()
+            .filter_map(|model| model["id"].as_str())
+            .map(String::from)
+            .collect();
+
+        let models: Vec<ModelInfo> = model_ids
+            .into_iter()
+            .map(|id| self.create_oss_model_info(&id, config))
+            .collect();
+
+        Ok(models)
+    }
+
+    /// Create a ModelInfo for an OSS model.
+    fn create_oss_model_info(&self, model_id: &str, config: &Config) -> ModelInfo {
+        // Check for per-model settings in config
+        let model_settings = config.model_settings.get(model_id);
+
+        // Determine context window: per-model setting > global setting > default
+        let context_window = model_settings
+            .and_then(|s| s.context_window)
+            .or(config.model_context_window)
+            .unwrap_or(DEFAULT_OSS_CONTEXT_WINDOW);
+
+        // Determine auto-compact token limit: per-model setting > global setting > 90% of context
+        let auto_compact_token_limit = model_settings
+            .and_then(|s| s.auto_compact_token_limit)
+            .or(config.model_auto_compact_token_limit)
+            .unwrap_or_else(|| (context_window * 90) / 100);
+
+        // Format display name from model ID (e.g., "qwen/qwen2.5-coder-14b" -> "qwen2.5-coder-14b")
+        let display_name = model_id
+            .split('/')
+            .last()
+            .unwrap_or(model_id)
+            .to_string();
+
+        ModelInfo {
+            slug: model_id.to_string(),
+            display_name,
+            description: Some(format!("Local model via {}", self.model_provider_id)),
+            default_reasoning_level: None,
+            supported_reasoning_levels: Vec::new(),
+            shell_type: ConfigShellToolType::Default,
+            visibility: ModelVisibility::List,
+            supported_in_api: true,
+            priority: 0,
+            upgrade: None,
+            base_instructions: model_info::BASE_INSTRUCTIONS.to_string(),
+            model_messages: None,
+            supports_reasoning_summaries: false,
+            support_verbosity: false,
+            default_verbosity: None,
+            apply_patch_tool_type: None,
+            truncation_policy: TruncationPolicyConfig::bytes(10_000),
+            supports_parallel_tool_calls: false,
+            context_window: Some(context_window),
+            auto_compact_token_limit: Some(auto_compact_token_limit),
+            effective_context_window_percent: 95,
+            experimental_supported_tools: Vec::new(),
         }
     }
 
@@ -325,6 +493,7 @@ impl ModelsManager {
             etag: RwLock::new(None),
             cache_manager,
             provider,
+            model_provider_id: "openai".to_string(),
         }
     }
 

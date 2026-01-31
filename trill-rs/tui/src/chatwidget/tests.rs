@@ -777,7 +777,7 @@ async fn make_chatwidget_manual(
     bottom.set_collaboration_modes_enabled(cfg.features.enabled(Feature::CollaborationModes));
     let auth_manager = AuthManager::from_auth_for_testing(CodexAuth::from_api_key("test"));
     let trill_home = cfg.trill_home.clone();
-    let models_manager = Arc::new(ModelsManager::new(trill_home, auth_manager.clone()));
+    let models_manager = Arc::new(ModelsManager::new(trill_home, auth_manager.clone(), cfg.model_provider_id.clone()));
     let reasoning_effort = None;
     let base_mode = CollaborationMode {
         mode: ModeKind::Custom,
@@ -874,6 +874,7 @@ fn set_chatgpt_auth(chat: &mut ChatWidget) {
     chat.models_manager = Arc::new(ModelsManager::new(
         chat.config.trill_home.clone(),
         chat.auth_manager.clone(),
+        chat.config.model_provider_id.clone(),
     ));
 }
 

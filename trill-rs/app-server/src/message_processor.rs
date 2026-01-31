@@ -149,6 +149,7 @@ impl MessageProcessor {
             config.trill_home.clone(),
             auth_manager.clone(),
             SessionSource::VSCode,
+            config.model_provider_id.clone(),
         ));
         let trill_message_processor = CodexMessageProcessor::new(CodexMessageProcessorArgs {
             auth_manager,

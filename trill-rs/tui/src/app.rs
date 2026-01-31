@@ -941,6 +941,7 @@ impl App {
             config.trill_home.clone(),
             auth_manager.clone(),
             SessionSource::Cli,
+            config.model_provider_id.clone(),
         ));
         let mut model = thread_manager
             .get_models_manager()

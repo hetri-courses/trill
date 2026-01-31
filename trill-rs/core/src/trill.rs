@@ -5292,6 +5292,7 @@ mod tests {
         let models_manager = Arc::new(ModelsManager::new(
             config.trill_home.clone(),
             auth_manager.clone(),
+            config.model_provider_id.clone(),
         ));
         let agent_control = AgentControl::default();
         let exec_policy = ExecPolicyManager::default();
@@ -5408,6 +5409,7 @@ mod tests {
         let models_manager = Arc::new(ModelsManager::new(
             config.trill_home.clone(),
             auth_manager.clone(),
+            config.model_provider_id.clone(),
         ));
         let agent_control = AgentControl::default();
         let exec_policy = ExecPolicyManager::default();

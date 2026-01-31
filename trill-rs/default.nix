@@ -25,7 +25,7 @@ rustPlatform.buildRustPackage (_: {
   };
 
   meta = with lib; {
-    description = "OpenAI Codex command‑line interface rust implementation";
+    description = "Trill by Hetri command‑line interface rust implementation";
     license = licenses.asl20;
     homepage = "https://github.com/openai/codex";
   };

@@ -362,6 +362,7 @@ pub async fn run_main(cli: Cli, trill_linux_sandbox_exe: Option<PathBuf>) -> any
         config.trill_home.clone(),
         auth_manager.clone(),
         SessionSource::Exec,
+        config.model_provider_id.clone(),
     ));
     let default_model = thread_manager
         .get_models_manager()

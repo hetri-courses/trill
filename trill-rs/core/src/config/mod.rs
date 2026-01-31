@@ -127,6 +127,10 @@ pub struct Config {
     /// Token usage threshold triggering auto-compaction of conversation history.
     pub model_auto_compact_token_limit: Option<i64>,
 
+    /// Per-model settings that override global defaults for specific models.
+    /// Keys are model IDs (e.g., "qwen/qwen2.5-coder-14b").
+    pub model_settings: HashMap<String, ModelSettings>,
+
     /// Key into the model_providers map that specifies which provider to use.
     pub model_provider_id: String,
 
@@ -803,6 +807,11 @@ pub struct ConfigToml {
     /// Token usage threshold triggering auto-compaction of conversation history.
     pub model_auto_compact_token_limit: Option<i64>,
 
+    /// Per-model settings that override global defaults for specific models.
+    /// Keys are model IDs (e.g., "qwen/qwen2.5-coder-14b").
+    #[serde(default)]
+    pub model_settings: HashMap<String, ModelSettings>,
+
     /// Default approval policy for executing commands.
     pub approval_policy: Option<AskForApproval>,
 
@@ -1036,6 +1045,20 @@ impl ProjectConfig {
     pub fn is_untrusted(&self) -> bool {
         matches!(self.trust_level, Some(TrustLevel::Untrusted))
     }
+}
+
+/// Per-model settings that can be configured in config.toml under `[model_settings."model-id"]`.
+/// These settings override global defaults for specific models.
+#[derive(Serialize, Deserialize, Debug, Clone, Default, PartialEq, JsonSchema)]
+#[schemars(deny_unknown_fields)]
+pub struct ModelSettings {
+    /// Size of the context window for this specific model, in tokens.
+    /// Overrides the global `model_context_window` setting.
+    pub context_window: Option<i64>,
+
+    /// Token usage threshold triggering auto-compaction of conversation history
+    /// for this specific model. Overrides the global `model_auto_compact_token_limit`.
+    pub auto_compact_token_limit: Option<i64>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default, PartialEq, JsonSchema)]
@@ -1408,8 +1431,9 @@ impl Config {
 
         let mut model_providers = built_in_model_providers();
         // Merge user-defined providers into the built-in list.
+        // User-defined providers override built-in providers with the same key.
         for (key, provider) in cfg.model_providers.into_iter() {
-            model_providers.entry(key).or_insert(provider);
+            model_providers.insert(key, provider);
         }
 
         let model_provider_id = model_provider
@@ -1547,6 +1571,7 @@ impl Config {
             review_model,
             model_context_window: cfg.model_context_window,
             model_auto_compact_token_limit: cfg.model_auto_compact_token_limit,
+            model_settings: cfg.model_settings,
             model_provider_id,
             model_provider,
             cwd: resolved_cwd,
@@ -3786,6 +3811,7 @@ model_verbosity = "high"
                 review_model: None,
                 model_context_window: None,
                 model_auto_compact_token_limit: None,
+                model_settings: HashMap::new(),
                 model_provider_id: "openai".to_string(),
                 model_provider: fixture.openai_provider.clone(),
                 approval_policy: Constrained::allow_any(AskForApproval::Never),
@@ -3872,6 +3898,7 @@ model_verbosity = "high"
             review_model: None,
             model_context_window: None,
             model_auto_compact_token_limit: None,
+            model_settings: HashMap::new(),
             model_provider_id: "openai-chat-completions".to_string(),
             model_provider: fixture.openai_chat_completions_provider.clone(),
             approval_policy: Constrained::allow_any(AskForApproval::UnlessTrusted),
@@ -3972,6 +3999,7 @@ model_verbosity = "high"
             review_model: None,
             model_context_window: None,
             model_auto_compact_token_limit: None,
+            model_settings: HashMap::new(),
             model_provider_id: "openai".to_string(),
             model_provider: fixture.openai_provider.clone(),
             approval_policy: Constrained::allow_any(AskForApproval::OnFailure),
@@ -4058,6 +4086,7 @@ model_verbosity = "high"
             review_model: None,
             model_context_window: None,
             model_auto_compact_token_limit: None,
+            model_settings: HashMap::new(),
             model_provider_id: "openai".to_string(),
             model_provider: fixture.openai_provider.clone(),
             approval_policy: Constrained::allow_any(AskForApproval::OnFailure),
