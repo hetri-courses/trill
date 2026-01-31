@@ -1,0 +1,6 @@
+load("//:defs.bzl", "trill_rust_crate")
+
+trill_rust_crate(
+    name = "codex-client",
+    crate_name = "trill_client",
+)

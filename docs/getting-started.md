@@ -1,3 +1,3 @@
-# Getting started with Codex CLI
+# Getting started with Trill CLI
 
-For an overview of Codex CLI features, see [this documentation](https://developers.openai.com/codex/cli/features#running-in-interactive-mode).
+For an overview of Trill CLI features, see [this documentation](https://developers.openai.com/codex/cli/features#running-in-interactive-mode).

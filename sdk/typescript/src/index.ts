@@ -26,9 +26,9 @@ export type {
 export { Thread } from "./thread";
 export type { RunResult, RunStreamedResult, Input, UserInput } from "./thread";
 
-export { Codex } from "./codex";
+export { Trill } from "./trill";
 
-export type { CodexOptions } from "./codexOptions";
+export type { TrillOptions } from "./trillOptions";
 
 export type {
   ThreadOptions,

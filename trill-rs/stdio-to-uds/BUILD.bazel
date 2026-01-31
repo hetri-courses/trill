@@ -1,0 +1,6 @@
+load("//:defs.bzl", "trill_rust_crate")
+
+trill_rust_crate(
+    name = "stdio-to-uds",
+    crate_name = "trill_stdio_to_uds",
+)

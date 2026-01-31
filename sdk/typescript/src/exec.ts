@@ -3,10 +3,10 @@ import path from "node:path";
 import readline from "node:readline";
 import { fileURLToPath } from "node:url";
 
-import type { CodexConfigObject, CodexConfigValue } from "./codexOptions";
+import type { TrillConfigObject, TrillConfigValue } from "./trillOptions";
 import { SandboxMode, ModelReasoningEffort, ApprovalMode, WebSearchMode } from "./threadOptions";
 
-export type CodexExecArgs = {
+export type TrillExecArgs = {
   input: string;
 
   baseUrl?: string;
@@ -40,24 +40,24 @@ export type CodexExecArgs = {
 };
 
 const INTERNAL_ORIGINATOR_ENV = "CODEX_INTERNAL_ORIGINATOR_OVERRIDE";
-const TYPESCRIPT_SDK_ORIGINATOR = "codex_sdk_ts";
+const TYPESCRIPT_SDK_ORIGINATOR = "trill_sdk_ts";
 
-export class CodexExec {
+export class TrillExec {
   private executablePath: string;
   private envOverride?: Record<string, string>;
-  private configOverrides?: CodexConfigObject;
+  private configOverrides?: TrillConfigObject;
 
   constructor(
     executablePath: string | null = null,
     env?: Record<string, string>,
-    configOverrides?: CodexConfigObject,
+    configOverrides?: TrillConfigObject,
   ) {
-    this.executablePath = executablePath || findCodexPath();
+    this.executablePath = executablePath || findTrillPath();
     this.envOverride = env;
     this.configOverrides = configOverrides;
   }
 
-  async *run(args: CodexExecArgs): AsyncGenerator<string> {
+  async *run(args: TrillExecArgs): AsyncGenerator<string> {
     const commandArgs: string[] = ["exec", "--experimental-json"];
 
     if (this.configOverrides) {
@@ -196,7 +196,7 @@ export class CodexExec {
       if (code !== 0 || signal) {
         const stderrBuffer = Buffer.concat(stderrChunks);
         const detail = signal ? `signal ${signal}` : `code ${code ?? 1}`;
-        throw new Error(`Codex Exec exited with ${detail}: ${stderrBuffer.toString("utf8")}`);
+        throw new Error(`Trill Exec exited with ${detail}: ${stderrBuffer.toString("utf8")}`);
       }
     } finally {
       rl.close();
@@ -210,14 +210,14 @@ export class CodexExec {
   }
 }
 
-function serializeConfigOverrides(configOverrides: CodexConfigObject): string[] {
+function serializeConfigOverrides(configOverrides: TrillConfigObject): string[] {
   const overrides: string[] = [];
   flattenConfigOverrides(configOverrides, "", overrides);
   return overrides;
 }
 
 function flattenConfigOverrides(
-  value: CodexConfigValue,
+  value: TrillConfigValue,
   prefix: string,
   overrides: string[],
 ): void {
@@ -226,7 +226,7 @@ function flattenConfigOverrides(
       overrides.push(`${prefix}=${toTomlValue(value, prefix)}`);
       return;
     } else {
-      throw new Error("Codex config overrides must be a plain object");
+      throw new Error("Trill config overrides must be a plain object");
     }
   }
 
@@ -242,7 +242,7 @@ function flattenConfigOverrides(
 
   for (const [key, child] of entries) {
     if (!key) {
-      throw new Error("Codex config override keys must be non-empty strings");
+      throw new Error("Trill config override keys must be non-empty strings");
     }
     if (child === undefined) {
       continue;
@@ -256,12 +256,12 @@ function flattenConfigOverrides(
   }
 }
 
-function toTomlValue(value: CodexConfigValue, path: string): string {
+function toTomlValue(value: TrillConfigValue, path: string): string {
   if (typeof value === "string") {
     return JSON.stringify(value);
   } else if (typeof value === "number") {
     if (!Number.isFinite(value)) {
-      throw new Error(`Codex config override at ${path} must be a finite number`);
+      throw new Error(`Trill config override at ${path} must be a finite number`);
     }
     return `${value}`;
   } else if (typeof value === "boolean") {
@@ -273,7 +273,7 @@ function toTomlValue(value: CodexConfigValue, path: string): string {
     const parts: string[] = [];
     for (const [key, child] of Object.entries(value)) {
       if (!key) {
-        throw new Error("Codex config override keys must be non-empty strings");
+        throw new Error("Trill config override keys must be non-empty strings");
       }
       if (child === undefined) {
         continue;
@@ -282,10 +282,10 @@ function toTomlValue(value: CodexConfigValue, path: string): string {
     }
     return `{${parts.join(", ")}}`;
   } else if (value === null) {
-    throw new Error(`Codex config override at ${path} cannot be null`);
+    throw new Error(`Trill config override at ${path} cannot be null`);
   } else {
     const typeName = typeof value;
-    throw new Error(`Unsupported Codex config override value at ${path}: ${typeName}`);
+    throw new Error(`Unsupported Trill config override value at ${path}: ${typeName}`);
   }
 }
 
@@ -294,14 +294,14 @@ function formatTomlKey(key: string): string {
   return TOML_BARE_KEY.test(key) ? key : JSON.stringify(key);
 }
 
-function isPlainObject(value: unknown): value is CodexConfigObject {
+function isPlainObject(value: unknown): value is TrillConfigObject {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 const scriptFileName = fileURLToPath(import.meta.url);
 const scriptDirName = path.dirname(scriptFileName);
 
-function findCodexPath() {
+function findTrillPath() {
   const { platform, arch } = process;
 
   let targetTriple = null;
@@ -353,8 +353,8 @@ function findCodexPath() {
 
   const vendorRoot = path.join(scriptDirName, "..", "vendor");
   const archRoot = path.join(vendorRoot, targetTriple);
-  const codexBinaryName = process.platform === "win32" ? "codex.exe" : "codex";
-  const binaryPath = path.join(archRoot, "codex", codexBinaryName);
+  const trillBinaryName = process.platform === "win32" ? "trill.exe" : "trill";
+  const binaryPath = path.join(archRoot, "trill", trillBinaryName);
 
   return binaryPath;
 }

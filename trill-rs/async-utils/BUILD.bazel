@@ -1,0 +1,6 @@
+load("//:defs.bzl", "trill_rust_crate")
+
+trill_rust_crate(
+    name = "async-utils",
+    crate_name = "trill_async_utils",
+)

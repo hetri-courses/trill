@@ -1,8 +1,8 @@
 import path from "node:path";
 
-export function codexPathOverride() {
+export function trillPathOverride() {
   return (
     process.env.CODEX_EXECUTABLE ??
-    path.join(process.cwd(), "..", "..", "codex-rs", "target", "debug", "codex")
+    path.join(process.cwd(), "..", "..", "trill-rs", "target", "debug", "trill")
   );
 }

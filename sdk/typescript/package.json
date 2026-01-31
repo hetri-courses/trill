@@ -1,15 +1,15 @@
 {
-  "name": "@openai/codex-sdk",
+  "name": "@hetri-courses/trill-sdk",
   "version": "0.0.0-dev",
-  "description": "TypeScript SDK for Codex APIs.",
+  "description": "TypeScript SDK for Trill APIs.",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/openai/codex.git",
+    "url": "git+https://github.com/hetri-courses/trill.git",
     "directory": "sdk/typescript"
   },
   "keywords": [
     "openai",
-    "codex",
+    "trill",
     "sdk",
     "typescript",
     "api"

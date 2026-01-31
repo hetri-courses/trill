@@ -1,0 +1,11 @@
+load("//:defs.bzl", "trill_rust_crate")
+
+trill_rust_crate(
+    name = "windows-sandbox-rs",
+    crate_name = "trill_windows_sandbox",
+    build_script_data = [
+        "Cargo.toml",
+        "codex-windows-sandbox-setup.manifest",
+    ],
+    crate_edition = "2021",
+)

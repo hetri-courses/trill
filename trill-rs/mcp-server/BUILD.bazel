@@ -1,0 +1,7 @@
+load("//:defs.bzl", "trill_rust_crate")
+
+trill_rust_crate(
+    name = "mcp-server",
+    crate_name = "trill_mcp_server",
+    integration_deps_extra = ["//codex-rs/mcp-server/tests/common:common"],
+)

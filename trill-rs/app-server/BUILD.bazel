@@ -1,0 +1,8 @@
+load("//:defs.bzl", "trill_rust_crate")
+
+trill_rust_crate(
+    name = "app-server",
+    crate_name = "trill_app_server",
+    integration_deps_extra = ["//codex-rs/app-server/tests/common:common"],
+    test_tags = ["no-sandbox"],
+)

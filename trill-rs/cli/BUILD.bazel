@@ -1,0 +1,10 @@
+load("//:defs.bzl", "trill_rust_crate", "multiplatform_binaries")
+
+trill_rust_crate(
+    name = "cli",
+    crate_name = "trill_cli",
+)
+
+multiplatform_binaries(
+    name = "codex",
+)

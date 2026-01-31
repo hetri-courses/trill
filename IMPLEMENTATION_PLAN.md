@@ -1,11 +1,11 @@
 # Trill Implementation Plan
 
-**Trill** is a fork of OpenAI's Codex CLI with local web search capabilities via SearXNG.
+**Trill** is a fork of OpenAI's Trill CLI with local web search capabilities via SearXNG.
 
 ## Overview
 
 ### Goals
-1. Fork Codex → Trill with full rebranding
+1. Fork Trill → Trill with full rebranding
 2. Replace OpenAI's server-side `web_search` with local SearXNG execution
 3. Maintain identical response format (`WebSearchCall`, `WebSearchAction`)
 4. Support all WebSearchAction types: Search, OpenPage, FindInPage
@@ -40,16 +40,16 @@
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-## Phase 1: Branding (Codex → Trill)
+## Phase 1: Branding (Trill → Trill)
 
 ### Files to Rename/Modify
 
 | Current | New |
 |---------|-----|
-| `codex-rs/` | `trill-rs/` |
-| `codex-cli/` | `trill-cli/` |
-| `~/.codex/` | `~/.trill/` |
-| Binary: `codex` | Binary: `trill` |
+| `trill-rs/` | `trill-rs/` |
+| `trill-cli/` | `trill-cli/` |
+| `~/.trill/` | `~/.trill/` |
+| Binary: `trill` | Binary: `trill` |
 | Package names in Cargo.toml | `trill-*` |
 
 ## Phase 2: Web Search Implementation
@@ -104,7 +104,7 @@ These are mapped to the WebSearchCall response with optional metadata inclusion.
 
 ## Implementation Order
 
-1. **Branding**: Rename Codex → Trill throughout codebase
+1. **Branding**: Rename Trill → Trill throughout codebase
 2. **Config**: Add web search configuration options
 3. **Handler**: Create web_search handler with SearXNG integration
 4. **Tool Registration**: Register as function tool

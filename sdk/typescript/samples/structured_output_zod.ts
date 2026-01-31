@@ -1,12 +1,12 @@
 #!/usr/bin/env -S NODE_NO_WARNINGS=1 pnpm ts-node-esm --files
 
-import { Codex } from "@openai/codex-sdk";
-import { codexPathOverride } from "./helpers.ts";
+import { Trill } from "@openai/trill-sdk";
+import { trillPathOverride } from "./helpers.ts";
 import z from "zod";
 import zodToJsonSchema from "zod-to-json-schema";
 
-const codex = new Codex({ codexPathOverride: codexPathOverride() });
-const thread = codex.startThread();
+const trill = new Trill({ trillPathOverride: trillPathOverride() });
+const thread = trill.startThread();
 
 const schema = z.object({
   summary: z.string(),

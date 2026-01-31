@@ -8,7 +8,7 @@ For a full configuration reference, see [this documentation](https://developers.
 
 ## Connecting to MCP servers
 
-Codex can connect to MCP servers configured in `~/.codex/config.toml`. See the configuration reference for the latest MCP server options:
+Trill can connect to MCP servers configured in `~/.trill/config.toml`. See the configuration reference for the latest MCP server options:
 
 - https://developers.openai.com/codex/config-reference
 
@@ -20,16 +20,16 @@ and are labeled as connected; others are marked as can be installed.
 
 ## Notify
 
-Codex can run a notification hook when the agent finishes a turn. See the configuration reference for the latest notification settings:
+Trill can run a notification hook when the agent finishes a turn. See the configuration reference for the latest notification settings:
 
 - https://developers.openai.com/codex/config-reference
 
 ## JSON Schema
 
-The generated JSON Schema for `config.toml` lives at `codex-rs/core/config.schema.json`.
+The generated JSON Schema for `config.toml` lives at `trill-rs/core/config.schema.json`.
 
 ## Notices
 
-Codex stores "do not show again" flags for some UI prompts under the `[notice]` table.
+Trill stores "do not show again" flags for some UI prompts under the `[notice]` table.
 
 Ctrl+C/Ctrl+D quitting uses a ~1 second double-press hint (`ctrl + c again to quit`).

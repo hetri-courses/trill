@@ -1,12 +1,12 @@
 #!/usr/bin/env -S NODE_NO_WARNINGS=1 pnpm ts-node-esm --files
 
-import { Codex } from "@openai/codex-sdk";
+import { Trill } from "@openai/trill-sdk";
 
-import { codexPathOverride } from "./helpers.ts";
+import { trillPathOverride } from "./helpers.ts";
 
-const codex = new Codex({ codexPathOverride: codexPathOverride() });
+const trill = new Trill({ trillPathOverride: trillPathOverride() });
 
-const thread = codex.startThread();
+const thread = trill.startThread();
 
 const schema = {
   type: "object",

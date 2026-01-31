@@ -1,0 +1,6 @@
+load("//:defs.bzl", "trill_rust_crate")
+
+trill_rust_crate(
+    name = "codex-backend-openapi-models",
+    crate_name = "trill_backend_openapi_models",
+)

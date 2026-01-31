@@ -1,0 +1,62 @@
+[package]
+name = "trill-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "trill"
+path = "src/main.rs"
+
+[lib]
+name = "trill_cli"
+path = "src/lib.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+anyhow = { workspace = true }
+clap = { workspace = true, features = ["derive"] }
+clap_complete = { workspace = true }
+trill-app-server = { workspace = true }
+trill-app-server-protocol = { workspace = true }
+trill-arg0 = { workspace = true }
+trill-chatgpt = { workspace = true }
+trill-cloud-tasks = { path = "../cloud-tasks" }
+trill-common = { workspace = true, features = ["cli"] }
+trill-core = { workspace = true }
+trill-exec = { workspace = true }
+trill-execpolicy = { workspace = true }
+trill-login = { workspace = true }
+trill-mcp-server = { workspace = true }
+trill-protocol = { workspace = true }
+trill-responses-api-proxy = { workspace = true }
+trill-rmcp-client = { workspace = true }
+trill-stdio-to-uds = { workspace = true }
+trill-tui = { workspace = true }
+libc = { workspace = true }
+owo-colors = { workspace = true }
+regex-lite = { workspace = true }
+serde_json = { workspace = true }
+supports-color = { workspace = true }
+tokio = { workspace = true, features = [
+    "io-std",
+    "macros",
+    "process",
+    "rt-multi-thread",
+    "signal",
+] }
+toml = { workspace = true }
+tracing = { workspace = true }
+
+[target.'cfg(target_os = "windows")'.dependencies]
+trill_windows_sandbox = { package = "trill-windows-sandbox", path = "../windows-sandbox-rs" }
+
+[dev-dependencies]
+assert_cmd = { workspace = true }
+assert_matches = { workspace = true }
+trill-utils-cargo-bin = { workspace = true }
+predicates = { workspace = true }
+pretty_assertions = { workspace = true }
+tempfile = { workspace = true }

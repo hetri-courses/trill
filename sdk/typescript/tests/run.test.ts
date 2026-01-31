@@ -2,10 +2,10 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-import { codexExecSpy } from "./codexExecSpy";
+import { trillExecSpy } from "./trillExecSpy";
 import { describe, expect, it } from "@jest/globals";
 
-import { Codex } from "../src/codex";
+import { Trill } from "../src/trill";
 
 import {
   assistantMessage,
@@ -17,9 +17,9 @@ import {
   SseResponseBody,
 } from "./responsesProxy";
 
-const codexExecPath = path.join(process.cwd(), "..", "..", "codex-rs", "target", "debug", "codex");
+const trillExecPath = path.join(process.cwd(), "..", "..", "trill-rs", "target", "debug", "trill");
 
-describe("Codex", () => {
+describe("Trill", () => {
   it("returns thread events", async () => {
     const { url, close } = await startResponsesTestProxy({
       statusCode: 200,
@@ -27,7 +27,7 @@ describe("Codex", () => {
     });
 
     try {
-      const client = new Codex({ codexPathOverride: codexExecPath, baseUrl: url, apiKey: "test" });
+      const client = new Trill({ trillPathOverride: trillExecPath, baseUrl: url, apiKey: "test" });
 
       const thread = client.startThread();
       const result = await thread.run("Hello, world!");
@@ -69,7 +69,7 @@ describe("Codex", () => {
     });
 
     try {
-      const client = new Codex({ codexPathOverride: codexExecPath, baseUrl: url, apiKey: "test" });
+      const client = new Trill({ trillPathOverride: trillExecPath, baseUrl: url, apiKey: "test" });
 
       const thread = client.startThread();
       await thread.run("first input");
@@ -112,7 +112,7 @@ describe("Codex", () => {
     });
 
     try {
-      const client = new Codex({ codexPathOverride: codexExecPath, baseUrl: url, apiKey: "test" });
+      const client = new Trill({ trillPathOverride: trillExecPath, baseUrl: url, apiKey: "test" });
 
       const thread = client.startThread();
       await thread.run("first input");
@@ -156,7 +156,7 @@ describe("Codex", () => {
     });
 
     try {
-      const client = new Codex({ codexPathOverride: codexExecPath, baseUrl: url, apiKey: "test" });
+      const client = new Trill({ trillPathOverride: trillExecPath, baseUrl: url, apiKey: "test" });
 
       const originalThread = client.startThread();
       await originalThread.run("first input");
@@ -197,10 +197,10 @@ describe("Codex", () => {
       ],
     });
 
-    const { args: spawnArgs, restore } = codexExecSpy();
+    const { args: spawnArgs, restore } = trillExecSpy();
 
     try {
-      const client = new Codex({ codexPathOverride: codexExecPath, baseUrl: url, apiKey: "test" });
+      const client = new Trill({ trillPathOverride: trillExecPath, baseUrl: url, apiKey: "test" });
 
       const thread = client.startThread({
         model: "gpt-test-1",
@@ -236,10 +236,10 @@ describe("Codex", () => {
       ],
     });
 
-    const { args: spawnArgs, restore } = codexExecSpy();
+    const { args: spawnArgs, restore } = trillExecSpy();
 
     try {
-      const client = new Codex({ codexPathOverride: codexExecPath, baseUrl: url, apiKey: "test" });
+      const client = new Trill({ trillPathOverride: trillExecPath, baseUrl: url, apiKey: "test" });
 
       const thread = client.startThread({
         modelReasoningEffort: "high",
@@ -267,10 +267,10 @@ describe("Codex", () => {
       ],
     });
 
-    const { args: spawnArgs, restore } = codexExecSpy();
+    const { args: spawnArgs, restore } = trillExecSpy();
 
     try {
-      const client = new Codex({ codexPathOverride: codexExecPath, baseUrl: url, apiKey: "test" });
+      const client = new Trill({ trillPathOverride: trillExecPath, baseUrl: url, apiKey: "test" });
 
       const thread = client.startThread({
         networkAccessEnabled: true,
@@ -298,10 +298,10 @@ describe("Codex", () => {
       ],
     });
 
-    const { args: spawnArgs, restore } = codexExecSpy();
+    const { args: spawnArgs, restore } = trillExecSpy();
 
     try {
-      const client = new Codex({ codexPathOverride: codexExecPath, baseUrl: url, apiKey: "test" });
+      const client = new Trill({ trillPathOverride: trillExecPath, baseUrl: url, apiKey: "test" });
 
       const thread = client.startThread({
         webSearchEnabled: true,
@@ -329,10 +329,10 @@ describe("Codex", () => {
       ],
     });
 
-    const { args: spawnArgs, restore } = codexExecSpy();
+    const { args: spawnArgs, restore } = trillExecSpy();
 
     try {
-      const client = new Codex({ codexPathOverride: codexExecPath, baseUrl: url, apiKey: "test" });
+      const client = new Trill({ trillPathOverride: trillExecPath, baseUrl: url, apiKey: "test" });
 
       const thread = client.startThread({
         webSearchMode: "cached",
@@ -360,10 +360,10 @@ describe("Codex", () => {
       ],
     });
 
-    const { args: spawnArgs, restore } = codexExecSpy();
+    const { args: spawnArgs, restore } = trillExecSpy();
 
     try {
-      const client = new Codex({ codexPathOverride: codexExecPath, baseUrl: url, apiKey: "test" });
+      const client = new Trill({ trillPathOverride: trillExecPath, baseUrl: url, apiKey: "test" });
 
       const thread = client.startThread({
         webSearchEnabled: false,
@@ -391,10 +391,10 @@ describe("Codex", () => {
       ],
     });
 
-    const { args: spawnArgs, restore } = codexExecSpy();
+    const { args: spawnArgs, restore } = trillExecSpy();
 
     try {
-      const client = new Codex({ codexPathOverride: codexExecPath, baseUrl: url, apiKey: "test" });
+      const client = new Trill({ trillPathOverride: trillExecPath, baseUrl: url, apiKey: "test" });
 
       const thread = client.startThread({
         approvalPolicy: "on-request",
@@ -410,7 +410,7 @@ describe("Codex", () => {
     }
   });
 
-  it("passes CodexOptions config overrides as TOML --config flags", async () => {
+  it("passes TrillOptions config overrides as TOML --config flags", async () => {
     const { url, close } = await startResponsesTestProxy({
       statusCode: 200,
       responseBodies: [
@@ -422,11 +422,11 @@ describe("Codex", () => {
       ],
     });
 
-    const { args: spawnArgs, restore } = codexExecSpy();
+    const { args: spawnArgs, restore } = trillExecSpy();
 
     try {
-      const client = new Codex({
-        codexPathOverride: codexExecPath,
+      const client = new Trill({
+        trillPathOverride: trillExecPath,
         baseUrl: url,
         apiKey: "test",
         config: {
@@ -452,7 +452,7 @@ describe("Codex", () => {
     }
   });
 
-  it("lets thread options override CodexOptions config overrides", async () => {
+  it("lets thread options override TrillOptions config overrides", async () => {
     const { url, close } = await startResponsesTestProxy({
       statusCode: 200,
       responseBodies: [
@@ -464,11 +464,11 @@ describe("Codex", () => {
       ],
     });
 
-    const { args: spawnArgs, restore } = codexExecSpy();
+    const { args: spawnArgs, restore } = trillExecSpy();
 
     try {
-      const client = new Codex({
-        codexPathOverride: codexExecPath,
+      const client = new Trill({
+        trillPathOverride: trillExecPath,
         baseUrl: url,
         apiKey: "test",
         config: { approval_policy: "never" },
@@ -490,7 +490,7 @@ describe("Codex", () => {
     }
   });
 
-  it("allows overriding the env passed to the Codex CLI", async () => {
+  it("allows overriding the env passed to the Trill CLI", async () => {
     const { url, close } = await startResponsesTestProxy({
       statusCode: 200,
       responseBodies: [
@@ -502,12 +502,12 @@ describe("Codex", () => {
       ],
     });
 
-    const { envs: spawnEnvs, restore } = codexExecSpy();
+    const { envs: spawnEnvs, restore } = trillExecSpy();
     process.env.CODEX_ENV_SHOULD_NOT_LEAK = "leak";
 
     try {
-      const client = new Codex({
-        codexPathOverride: codexExecPath,
+      const client = new Trill({
+        trillPathOverride: trillExecPath,
         baseUrl: url,
         apiKey: "test",
         env: { CUSTOM_ENV: "custom" },
@@ -545,10 +545,10 @@ describe("Codex", () => {
       ],
     });
 
-    const { args: spawnArgs, restore } = codexExecSpy();
+    const { args: spawnArgs, restore } = trillExecSpy();
 
     try {
-      const client = new Codex({ codexPathOverride: codexExecPath, baseUrl: url, apiKey: "test" });
+      const client = new Trill({ trillPathOverride: trillExecPath, baseUrl: url, apiKey: "test" });
 
       const thread = client.startThread({
         additionalDirectories: ["../backend", "/tmp/shared"],
@@ -587,7 +587,7 @@ describe("Codex", () => {
       ],
     });
 
-    const { args: spawnArgs, restore } = codexExecSpy();
+    const { args: spawnArgs, restore } = trillExecSpy();
 
     const schema = {
       type: "object",
@@ -599,7 +599,7 @@ describe("Codex", () => {
     } as const;
 
     try {
-      const client = new Codex({ codexPathOverride: codexExecPath, baseUrl: url, apiKey: "test" });
+      const client = new Trill({ trillPathOverride: trillExecPath, baseUrl: url, apiKey: "test" });
 
       const thread = client.startThread();
       await thread.run("structured", { outputSchema: schema });
@@ -610,7 +610,7 @@ describe("Codex", () => {
       const text = payload!.json.text;
       expect(text).toBeDefined();
       expect(text?.format).toEqual({
-        name: "codex_output_schema",
+        name: "trill_output_schema",
         type: "json_schema",
         strict: true,
         schema,
@@ -644,7 +644,7 @@ describe("Codex", () => {
     });
 
     try {
-      const client = new Codex({ codexPathOverride: codexExecPath, baseUrl: url, apiKey: "test" });
+      const client = new Trill({ trillPathOverride: trillExecPath, baseUrl: url, apiKey: "test" });
 
       const thread = client.startThread();
       await thread.run([
@@ -672,8 +672,8 @@ describe("Codex", () => {
       ],
     });
 
-    const { args: spawnArgs, restore } = codexExecSpy();
-    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "codex-images-"));
+    const { args: spawnArgs, restore } = trillExecSpy();
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "trill-images-"));
     const imagesDirectoryEntries: [string, string] = [
       path.join(tempDir, "first.png"),
       path.join(tempDir, "second.jpg"),
@@ -683,7 +683,7 @@ describe("Codex", () => {
     });
 
     try {
-      const client = new Codex({ codexPathOverride: codexExecPath, baseUrl: url, apiKey: "test" });
+      const client = new Trill({ trillPathOverride: trillExecPath, baseUrl: url, apiKey: "test" });
 
       const thread = client.startThread();
       await thread.run([
@@ -719,12 +719,12 @@ describe("Codex", () => {
       ],
     });
 
-    const { args: spawnArgs, restore } = codexExecSpy();
+    const { args: spawnArgs, restore } = trillExecSpy();
 
     try {
-      const workingDirectory = fs.mkdtempSync(path.join(os.tmpdir(), "codex-working-dir-"));
-      const client = new Codex({
-        codexPathOverride: codexExecPath,
+      const workingDirectory = fs.mkdtempSync(path.join(os.tmpdir(), "trill-working-dir-"));
+      const client = new Trill({
+        trillPathOverride: trillExecPath,
         baseUrl: url,
         apiKey: "test",
       });
@@ -756,9 +756,9 @@ describe("Codex", () => {
     });
 
     try {
-      const workingDirectory = fs.mkdtempSync(path.join(os.tmpdir(), "codex-working-dir-"));
-      const client = new Codex({
-        codexPathOverride: codexExecPath,
+      const workingDirectory = fs.mkdtempSync(path.join(os.tmpdir(), "trill-working-dir-"));
+      const client = new Trill({
+        trillPathOverride: trillExecPath,
         baseUrl: url,
         apiKey: "test",
       });
@@ -774,14 +774,14 @@ describe("Codex", () => {
     }
   });
 
-  it("sets the codex sdk originator header", async () => {
+  it("sets the trill sdk originator header", async () => {
     const { url, close, requests } = await startResponsesTestProxy({
       statusCode: 200,
       responseBodies: [sse(responseStarted(), assistantMessage("Hi!"), responseCompleted())],
     });
 
     try {
-      const client = new Codex({ codexPathOverride: codexExecPath, baseUrl: url, apiKey: "test" });
+      const client = new Trill({ trillPathOverride: trillExecPath, baseUrl: url, apiKey: "test" });
 
       const thread = client.startThread();
       await thread.run("Hello, originator!");
@@ -789,9 +789,9 @@ describe("Codex", () => {
       expect(requests.length).toBeGreaterThan(0);
       const originatorHeader = requests[0]!.headers["originator"];
       if (Array.isArray(originatorHeader)) {
-        expect(originatorHeader).toContain("codex_sdk_ts");
+        expect(originatorHeader).toContain("trill_sdk_ts");
       } else {
-        expect(originatorHeader).toBe("codex_sdk_ts");
+        expect(originatorHeader).toBe("trill_sdk_ts");
       }
     } finally {
       await close();
@@ -809,7 +809,7 @@ describe("Codex", () => {
     });
 
     try {
-      const client = new Codex({ codexPathOverride: codexExecPath, baseUrl: url, apiKey: "test" });
+      const client = new Trill({ trillPathOverride: trillExecPath, baseUrl: url, apiKey: "test" });
       const thread = client.startThread();
       await expect(thread.run("fail")).rejects.toThrow("stream disconnected before completion:");
     } finally {
@@ -819,7 +819,7 @@ describe("Codex", () => {
 });
 
 /**
- * Given a list of args to `codex` and a `key`, collects all `--config`
+ * Given a list of args to `trill` and a `key`, collects all `--config`
  * overrides for that key.
  */
 function collectConfigValues(args: string[] | undefined, key: string): string[] {

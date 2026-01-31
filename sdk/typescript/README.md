@@ -1,13 +1,13 @@
-# Codex SDK
+# Trill SDK
 
-Embed the Codex agent in your workflows and apps.
+Embed the Trill agent in your workflows and apps.
 
-The TypeScript SDK wraps the bundled `codex` binary. It spawns the CLI and exchanges JSONL events over stdin/stdout.
+The TypeScript SDK wraps the bundled `trill` binary. It spawns the CLI and exchanges JSONL events over stdin/stdout.
 
 ## Installation
 
 ```bash
-npm install @openai/codex-sdk
+npm install @hetri-courses/trill-sdk
 ```
 
 Requires Node.js 18+.
@@ -15,9 +15,9 @@ Requires Node.js 18+.
 ## Quickstart
 
 ```typescript
-import { Codex } from "@openai/codex-sdk";
+import { Trill } from "@hetri-courses/trill-sdk";
 
-const codex = new Codex();
+const trill = new Trill();
 const thread = codex.startThread();
 const turn = await thread.run("Diagnose the test failure and propose a fix");
 
@@ -52,7 +52,7 @@ for await (const event of events) {
 
 ### Structured output
 
-The Codex agent can produce a JSON response that conforms to a specified schema. The schema can be provided for each turn as a plain JSON object.
+The Trill agent can produce a JSON response that conforms to a specified schema. The schema can be provided for each turn as a plain JSON object.
 
 ```typescript
 const schema = {
@@ -85,7 +85,7 @@ console.log(turn.finalResponse);
 
 ### Attaching images
 
-Provide structured input entries when you need to include images alongside text. Text entries are concatenated into the final prompt while image entries are passed to the Codex CLI via `--image`.
+Provide structured input entries when you need to include images alongside text. Text entries are concatenated into the final prompt while image entries are passed to the Trill CLI via `--image`.
 
 ```typescript
 const turn = await thread.run([
@@ -97,7 +97,7 @@ const turn = await thread.run([
 
 ### Resuming an existing thread
 
-Threads are persisted in `~/.codex/sessions`. If you lose the in-memory `Thread` object, reconstruct it with `resumeThread()` and keep going.
+Threads are persisted in `~/.trill/sessions`. If you lose the in-memory `Thread` object, reconstruct it with `resumeThread()` and keep going.
 
 ```typescript
 const savedThreadId = process.env.CODEX_THREAD_ID!;
@@ -107,7 +107,7 @@ await thread.run("Implement the fix");
 
 ### Working directory controls
 
-Codex runs in the current working directory by default. To avoid unrecoverable errors, Codex requires the working directory to be a Git repository. You can skip the Git repository check by passing the `skipGitRepoCheck` option when creating a thread.
+Trill runs in the current working directory by default. To avoid unrecoverable errors, Trill requires the working directory to be a Git repository. You can skip the Git repository check by passing the `skipGitRepoCheck` option when creating a thread.
 
 ```typescript
 const thread = codex.startThread({
@@ -116,13 +116,13 @@ const thread = codex.startThread({
 });
 ```
 
-### Controlling the Codex CLI environment
+### Controlling the Trill CLI environment
 
-By default, the Codex CLI inherits the Node.js process environment. Provide the optional `env` parameter when instantiating the
-`Codex` client to fully control which variables the CLI receives—useful for sandboxed hosts like Electron apps.
+By default, the Trill CLI inherits the Node.js process environment. Provide the optional `env` parameter when instantiating the
+`Trill` client to fully control which variables the CLI receives—useful for sandboxed hosts like Electron apps.
 
 ```typescript
-const codex = new Codex({
+const trill = new Trill({
   env: {
     PATH: "/usr/local/bin",
   },
@@ -134,11 +134,11 @@ provide.
 
 ### Passing `--config` overrides
 
-Use the `config` option to provide additional Codex CLI configuration overrides. The SDK accepts a JSON object, flattens it
+Use the `config` option to provide additional Trill CLI configuration overrides. The SDK accepts a JSON object, flattens it
 into dotted paths, and serializes values as TOML literals before passing them as repeated `--config key=value` flags.
 
 ```typescript
-const codex = new Codex({
+const trill = new Trill({
   config: {
     show_raw_agent_reasoning: true,
     sandbox_workspace_write: { network_access: true },

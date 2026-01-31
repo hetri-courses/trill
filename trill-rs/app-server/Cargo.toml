@@ -1,0 +1,72 @@
+[package]
+name = "trill-app-server"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "trill-app-server"
+path = "src/main.rs"
+
+[lib]
+name = "trill_app_server"
+path = "src/lib.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+anyhow = { workspace = true }
+async-trait = { workspace = true }
+trill-arg0 = { workspace = true }
+trill-cloud-requirements = { workspace = true }
+trill-common = { workspace = true, features = ["cli"] }
+trill-core = { workspace = true }
+trill-backend-client = { workspace = true }
+trill-file-search = { workspace = true }
+trill-chatgpt = { workspace = true }
+trill-login = { workspace = true }
+trill-protocol = { workspace = true }
+trill-app-server-protocol = { workspace = true }
+trill-feedback = { workspace = true }
+trill-rmcp-client = { workspace = true }
+trill-utils-absolute-path = { workspace = true }
+trill-utils-json-to-toml = { workspace = true }
+chrono = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+mcp-types = { workspace = true }
+tempfile = { workspace = true }
+time = { workspace = true }
+toml = { workspace = true }
+tokio = { workspace = true, features = [
+    "io-std",
+    "macros",
+    "process",
+    "rt-multi-thread",
+    "signal",
+] }
+tracing = { workspace = true, features = ["log"] }
+tracing-subscriber = { workspace = true, features = ["env-filter", "fmt"] }
+uuid = { workspace = true, features = ["serde", "v7"] }
+
+[dev-dependencies]
+app_test_support = { workspace = true }
+axum = { workspace = true, default-features = false, features = [
+    "http1",
+    "json",
+    "tokio",
+] }
+base64 = { workspace = true }
+trill-execpolicy = { workspace = true }
+core_test_support = { workspace = true }
+mcp-types = { workspace = true }
+os_info = { workspace = true }
+pretty_assertions = { workspace = true }
+rmcp = { workspace = true, default-features = false, features = [
+    "server",
+    "transport-streamable-http-server",
+] }
+serial_test = { workspace = true }
+wiremock = { workspace = true }
+shlex = { workspace = true }

@@ -1,0 +1,7 @@
+load("//:defs.bzl", "trill_rust_crate")
+
+trill_rust_crate(
+    name = "protocol",
+    crate_name = "trill_protocol",
+    compile_data = glob(["src/prompts/**/*.md"]),
+)

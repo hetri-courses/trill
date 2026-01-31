@@ -1,59 +1,72 @@
-<p align="center"><code>npm i -g @openai/codex</code><br />or <code>brew install --cask codex</code></p>
-<p align="center"><strong>Codex CLI</strong> is a coding agent from OpenAI that runs locally on your computer.
-<p align="center">
-  <img src="./.github/codex-cli-splash.png" alt="Codex CLI splash" width="80%" />
-</p>
-</br>
-If you want Codex in your code editor (VS Code, Cursor, Windsurf), <a href="https://developers.openai.com/codex/ide">install in your IDE.</a>
-</br>If you are looking for the <em>cloud-based agent</em> from OpenAI, <strong>Codex Web</strong>, go to <a href="https://chatgpt.com/codex">chatgpt.com/codex</a>.</p>
+# Trill CLI
 
----
+**Trill** is a fork of OpenAI's Codex CLI with local web search capabilities via SearXNG.
 
-## Quickstart
+## Overview
 
-### Installing and running Codex CLI
+Trill enables local LLM providers (like LM Studio) to use web search functionality through a local SearXNG instance, without requiring OpenAI's server-side web search.
 
-Install globally with your preferred package manager:
+### Features
 
-```shell
-# Install using npm
-npm install -g @openai/codex
-```
+- **Local Web Search**: Replaces OpenAI's server-side `web_search` with local SearXNG execution
+- **LM Studio Compatible**: Registers web_search as `type: "function"` for LM Studio compatibility
+- **Full WebSearchAction Support**: Search, OpenPage, FindInPage actions
+- **Configurable SearXNG**: Hardcoded URL with config override option
+- **Rich Metadata**: Includes engine, score, category, and publishedDate fields
+
+## Installation
 
 ```shell
-# Install using Homebrew
-brew install --cask codex
+# Build from source
+cd trill-rs
+cargo build --release
 ```
 
-Then simply run `codex` to get started.
+The binary will be at `target/release/trill`.
 
-<details>
-<summary>You can also go to the <a href="https://github.com/openai/codex/releases/latest">latest GitHub Release</a> and download the appropriate binary for your platform.</summary>
+## Configuration
 
-Each GitHub Release contains many executables, but in practice, you likely want one of these:
+Create `~/.trill/config.toml`:
 
-- macOS
-  - Apple Silicon/arm64: `codex-aarch64-apple-darwin.tar.gz`
-  - x86_64 (older Mac hardware): `codex-x86_64-apple-darwin.tar.gz`
-- Linux
-  - x86_64: `codex-x86_64-unknown-linux-musl.tar.gz`
-  - arm64: `codex-aarch64-unknown-linux-musl.tar.gz`
+```toml
+[web_search]
+provider = "searxng"
+searxng_url = "http://192.168.0.137:8080"
+include_metadata = true
+timeout_seconds = 30
+```
 
-Each archive contains a single entry with the platform baked into the name (e.g., `codex-x86_64-unknown-linux-musl`), so you likely want to rename it to `codex` after extracting it.
+## Architecture
 
-</details>
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                         LM Studio                                │
+│  (Model sees web_search as type: "function", calls it normally) │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼ Function call: web_search(query)
+┌─────────────────────────────────────────────────────────────────┐
+│                           Trill                                  │
+│                                                                  │
+│  1. Receives function call for "web_search"                     │
+│  2. Determines WebSearchAction type (Search/OpenPage/FindInPage)│
+│  3. Executes via SearXNG or URL fetch                           │
+│  4. Formats response as WebSearchCall with WebSearchAction      │
+│  5. Returns to model                                            │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    SearXNG (Docker)                              │
+│              http://192.168.0.137:8080                          │
+│                                                                  │
+│  Endpoints:                                                      │
+│  - /search?q={query}&format=json  (for Search action)           │
+└─────────────────────────────────────────────────────────────────┘
+```
 
-### Using Codex with your ChatGPT plan
+## License
 
-Run `codex` and select **Sign in with ChatGPT**. We recommend signing into your ChatGPT account to use Codex as part of your Plus, Pro, Team, Edu, or Enterprise plan. [Learn more about what's included in your ChatGPT plan](https://help.openai.com/en/articles/11369540-codex-in-chatgpt).
+This project is licensed under the Apache-2.0 License.
 
-You can also use Codex with an API key, but this requires [additional setup](https://developers.openai.com/codex/auth#sign-in-with-an-api-key).
-
-## Docs
-
-- [**Codex Documentation**](https://developers.openai.com/codex)
-- [**Contributing**](./docs/contributing.md)
-- [**Installing & building**](./docs/install.md)
-- [**Open source fund**](./docs/open-source-fund.md)
-
-This repository is licensed under the [Apache-2.0 License](LICENSE).
+Based on [OpenAI Codex CLI](https://github.com/openai/codex).

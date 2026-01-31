@@ -1,0 +1,6 @@
+load("//:defs.bzl", "trill_rust_crate")
+
+trill_rust_crate(
+    name = "pty",
+    crate_name = "trill_utils_pty",
+)

@@ -1,0 +1,6 @@
+load("//:defs.bzl", "trill_rust_crate")
+
+trill_rust_crate(
+    name = "app-server-protocol",
+    crate_name = "trill_app_server_protocol",
+)
