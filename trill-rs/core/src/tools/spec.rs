@@ -28,6 +28,7 @@ pub(crate) struct ToolsConfig {
     pub shell_type: ConfigShellToolType,
     pub apply_patch_tool_type: Option<ApplyPatchToolType>,
     pub web_search_mode: Option<WebSearchMode>,
+    pub searxng_url: String,
     pub collab_tools: bool,
     pub collaboration_modes_tools: bool,
     pub request_rule_enabled: bool,
@@ -38,6 +39,7 @@ pub(crate) struct ToolsConfigParams<'a> {
     pub(crate) model_info: &'a ModelInfo,
     pub(crate) features: &'a Features,
     pub(crate) web_search_mode: Option<WebSearchMode>,
+    pub(crate) searxng_url: String,
 }
 
 impl ToolsConfig {
@@ -46,6 +48,7 @@ impl ToolsConfig {
             model_info,
             features,
             web_search_mode,
+            searxng_url,
         } = params;
         let include_apply_patch_tool = features.enabled(Feature::ApplyPatchFreeform);
         let include_collab_tools = features.enabled(Feature::Collab);
@@ -81,6 +84,7 @@ impl ToolsConfig {
             shell_type,
             apply_patch_tool_type,
             web_search_mode: *web_search_mode,
+            searxng_url: searxng_url.clone(),
             collab_tools: include_collab_tools,
             collaboration_modes_tools: include_collaboration_modes_tools,
             request_rule_enabled,
@@ -440,6 +444,70 @@ fn create_view_image_tool() -> ToolSpec {
         parameters: JsonSchema::Object {
             properties,
             required: Some(vec!["path".to_string()]),
+            additional_properties: Some(false.into()),
+        },
+    })
+}
+
+/// Creates the web_search function tool for LM Studio compatibility.
+/// This tool is registered as type "function" instead of "web_search" to work with
+/// local LLM providers that don't support OpenAI's web_search tool type.
+fn create_web_search_tool() -> ToolSpec {
+    let properties = BTreeMap::from([
+        (
+            "query".to_string(),
+            JsonSchema::String {
+                description: Some("Search query string (for Search action)".to_string()),
+            },
+        ),
+        (
+            "queries".to_string(),
+            JsonSchema::Array {
+                items: Box::new(JsonSchema::String { description: None }),
+                description: Some("Multiple search queries to execute (for Search action)".to_string()),
+            },
+        ),
+        (
+            "url".to_string(),
+            JsonSchema::String {
+                description: Some("URL to open or search within (for OpenPage/FindInPage actions)".to_string()),
+            },
+        ),
+        (
+            "pattern".to_string(),
+            JsonSchema::String {
+                description: Some("Pattern to find in page content (for FindInPage action)".to_string()),
+            },
+        ),
+        (
+            "action".to_string(),
+            JsonSchema::String {
+                description: Some("Action type: 'search', 'open_page', or 'find_in_page'. Auto-detected if not specified.".to_string()),
+            },
+        ),
+    ]);
+
+    ToolSpec::Function(ResponsesApiTool {
+        name: "web_search".to_string(),
+        description: r#"Searches the web or retrieves page content via local SearXNG instance.
+
+Actions (auto-detected based on parameters):
+- Search: Provide 'query' or 'queries' to search the web
+- OpenPage: Provide 'url' to fetch and return page content
+- FindInPage: Provide 'url' and 'pattern' to search within a page
+
+Examples:
+- Search: {"query": "rust async tutorial"}
+- Multiple queries: {"queries": ["rust async", "tokio tutorial"]}
+- Open page: {"url": "https://docs.rs/tokio"}
+- Find in page: {"url": "https://docs.rs/tokio", "pattern": "spawn"}
+
+Returns search results with metadata including: title, url, snippet, engine, score, category."#
+            .to_string(),
+        strict: false,
+        parameters: JsonSchema::Object {
+            properties,
+            required: None,
             additional_properties: Some(false.into()),
         },
     })
@@ -1272,6 +1340,7 @@ pub(crate) fn build_specs(
     use crate::tools::handlers::TestSyncHandler;
     use crate::tools::handlers::UnifiedExecHandler;
     use crate::tools::handlers::ViewImageHandler;
+    use crate::tools::handlers::WebSearchHandler;
     use std::sync::Arc;
 
     let mut builder = ToolRegistryBuilder::new();
@@ -1380,16 +1449,14 @@ pub(crate) fn build_specs(
         builder.register_handler("test_sync_tool", test_sync_handler);
     }
 
+    // Register web_search as a function tool for LM Studio compatibility.
+    // This replaces the OpenAI-specific "web_search" tool type with a standard
+    // function that routes to local SearXNG instance.
     match config.web_search_mode {
-        Some(WebSearchMode::Cached) => {
-            builder.push_spec(ToolSpec::WebSearch {
-                external_web_access: Some(false),
-            });
-        }
-        Some(WebSearchMode::Live) => {
-            builder.push_spec(ToolSpec::WebSearch {
-                external_web_access: Some(true),
-            });
+        Some(WebSearchMode::Cached) | Some(WebSearchMode::Live) => {
+            let web_search_handler = Arc::new(WebSearchHandler::new(config.searxng_url.clone()));
+            builder.push_spec(create_web_search_tool());
+            builder.register_handler("web_search", web_search_handler);
         }
         Some(WebSearchMode::Disabled) | None => {}
     }
@@ -1618,6 +1685,7 @@ mod tests {
             model_info: &model_info,
             features: &features,
             web_search_mode: Some(WebSearchMode::Cached),
+            searxng_url: "http://192.168.0.137:8080".to_string(),
         });
         let (tools, _) = build_specs(&tools_config, None, &[]).build();
         assert_contains_tool_names(
@@ -1636,6 +1704,7 @@ mod tests {
             model_info: &model_info,
             features: &features,
             web_search_mode: Some(WebSearchMode::Cached),
+            searxng_url: "http://192.168.0.137:8080".to_string(),
         });
         let (tools, _) = build_specs(&tools_config, None, &[]).build();
         assert!(
@@ -1648,6 +1717,7 @@ mod tests {
             model_info: &model_info,
             features: &features,
             web_search_mode: Some(WebSearchMode::Cached),
+            searxng_url: "http://192.168.0.137:8080".to_string(),
         });
         let (tools, _) = build_specs(&tools_config, None, &[]).build();
         assert_contains_tool_names(&tools, &["request_user_input"]);
@@ -1665,6 +1735,7 @@ mod tests {
             model_info: &model_info,
             features,
             web_search_mode,
+            searxng_url: "http://192.168.0.137:8080".to_string(),
         });
         let (tools, _) = build_specs(&tools_config, Some(HashMap::new()), &[]).build();
         let tool_names = tools.iter().map(|t| t.spec.name()).collect::<Vec<_>>();
@@ -1672,7 +1743,7 @@ mod tests {
     }
 
     #[test]
-    fn web_search_mode_cached_sets_external_web_access_false() {
+    fn web_search_mode_cached_registers_function_tool() {
         let config = test_config();
         let model_info = ModelsManager::construct_model_info_offline("gpt-5-codex", &config);
         let features = Features::with_defaults();
@@ -1681,20 +1752,17 @@ mod tests {
             model_info: &model_info,
             features: &features,
             web_search_mode: Some(WebSearchMode::Cached),
+            searxng_url: "http://192.168.0.137:8080".to_string(),
         });
         let (tools, _) = build_specs(&tools_config, None, &[]).build();
 
         let tool = find_tool(&tools, "web_search");
-        assert_eq!(
-            tool.spec,
-            ToolSpec::WebSearch {
-                external_web_access: Some(false),
-            }
-        );
+        // web_search is now registered as a Function tool for LM Studio compatibility
+        assert!(matches!(tool.spec, ToolSpec::Function(ref f) if f.name == "web_search"));
     }
 
     #[test]
-    fn web_search_mode_live_sets_external_web_access_true() {
+    fn web_search_mode_live_registers_function_tool() {
         let config = test_config();
         let model_info = ModelsManager::construct_model_info_offline("gpt-5-codex", &config);
         let features = Features::with_defaults();
@@ -1703,16 +1771,13 @@ mod tests {
             model_info: &model_info,
             features: &features,
             web_search_mode: Some(WebSearchMode::Live),
+            searxng_url: "http://192.168.0.137:8080".to_string(),
         });
         let (tools, _) = build_specs(&tools_config, None, &[]).build();
 
         let tool = find_tool(&tools, "web_search");
-        assert_eq!(
-            tool.spec,
-            ToolSpec::WebSearch {
-                external_web_access: Some(true),
-            }
-        );
+        // web_search is now registered as a Function tool for LM Studio compatibility
+        assert!(matches!(tool.spec, ToolSpec::Function(ref f) if f.name == "web_search"));
     }
 
     #[test]
@@ -1949,6 +2014,7 @@ mod tests {
             model_info: &model_info,
             features: &features,
             web_search_mode: Some(WebSearchMode::Live),
+            searxng_url: "http://192.168.0.137:8080".to_string(),
         });
         let (tools, _) = build_specs(&tools_config, Some(HashMap::new()), &[]).build();
 
@@ -1971,6 +2037,7 @@ mod tests {
             model_info: &model_info,
             features: &features,
             web_search_mode: Some(WebSearchMode::Cached),
+            searxng_url: "http://192.168.0.137:8080".to_string(),
         });
         let (tools, _) = build_specs(&tools_config, None, &[]).build();
 
@@ -1990,6 +2057,7 @@ mod tests {
             model_info: &model_info,
             features: &features,
             web_search_mode: Some(WebSearchMode::Cached),
+            searxng_url: "http://192.168.0.137:8080".to_string(),
         });
         let (tools, _) = build_specs(&tools_config, None, &[]).build();
 
@@ -2021,6 +2089,7 @@ mod tests {
             model_info: &model_info,
             features: &features,
             web_search_mode: Some(WebSearchMode::Live),
+            searxng_url: "http://192.168.0.137:8080".to_string(),
         });
         let (tools, _) = build_specs(
             &tools_config,
@@ -2117,6 +2186,7 @@ mod tests {
             model_info: &model_info,
             features: &features,
             web_search_mode: Some(WebSearchMode::Cached),
+            searxng_url: "http://192.168.0.137:8080".to_string(),
         });
 
         // Intentionally construct a map with keys that would sort alphabetically.
@@ -2194,6 +2264,7 @@ mod tests {
             model_info: &model_info,
             features: &features,
             web_search_mode: Some(WebSearchMode::Cached),
+            searxng_url: "http://192.168.0.137:8080".to_string(),
         });
 
         let (tools, _) = build_specs(
@@ -2252,6 +2323,7 @@ mod tests {
             model_info: &model_info,
             features: &features,
             web_search_mode: Some(WebSearchMode::Cached),
+            searxng_url: "http://192.168.0.137:8080".to_string(),
         });
 
         let (tools, _) = build_specs(
@@ -2307,6 +2379,7 @@ mod tests {
             model_info: &model_info,
             features: &features,
             web_search_mode: Some(WebSearchMode::Cached),
+            searxng_url: "http://192.168.0.137:8080".to_string(),
         });
 
         let (tools, _) = build_specs(
@@ -2364,6 +2437,7 @@ mod tests {
             model_info: &model_info,
             features: &features,
             web_search_mode: Some(WebSearchMode::Cached),
+            searxng_url: "http://192.168.0.137:8080".to_string(),
         });
 
         let (tools, _) = build_specs(
@@ -2477,6 +2551,7 @@ Examples of valid command strings:
             model_info: &model_info,
             features: &features,
             web_search_mode: Some(WebSearchMode::Cached),
+            searxng_url: "http://192.168.0.137:8080".to_string(),
         });
         let (tools, _) = build_specs(
             &tools_config,

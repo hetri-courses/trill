@@ -12,6 +12,7 @@ mod shell;
 mod test_sync;
 mod unified_exec;
 mod view_image;
+mod web_search;
 
 pub use plan::PLAN_TOOL;
 use serde::Deserialize;
@@ -32,6 +33,7 @@ pub use shell::ShellHandler;
 pub use test_sync::TestSyncHandler;
 pub use unified_exec::UnifiedExecHandler;
 pub use view_image::ViewImageHandler;
+pub use web_search::WebSearchHandler;
 
 fn parse_arguments<T>(arguments: &str) -> Result<T, FunctionCallError>
 where

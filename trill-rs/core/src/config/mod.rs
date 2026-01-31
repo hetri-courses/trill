@@ -319,6 +319,9 @@ pub struct Config {
     /// Explicit or feature-derived web search mode.
     pub web_search_mode: Option<WebSearchMode>,
 
+    /// URL for the local SearXNG instance used for web searches.
+    pub searxng_url: String,
+
     /// If set to `true`, used only the experimental unified exec tool.
     pub use_experimental_unified_exec_tool: bool,
 
@@ -923,6 +926,10 @@ pub struct ConfigToml {
 
     /// Controls the web search tool mode: disabled, cached, or live.
     pub web_search: Option<WebSearchMode>,
+
+    /// URL for the local SearXNG instance used for web searches.
+    /// Defaults to "http://192.168.0.137:8080" if not set.
+    pub searxng_url: Option<String>,
 
     /// Nested tools section for feature toggles
     pub tools: Option<ToolsToml>,
@@ -1609,6 +1616,10 @@ impl Config {
             forced_login_method,
             include_apply_patch_tool: include_apply_patch_tool_flag,
             web_search_mode,
+            searxng_url: cfg
+                .searxng_url
+                .clone()
+                .unwrap_or_else(|| "http://192.168.0.137:8080".to_string()),
             use_experimental_unified_exec_tool,
             ghost_snapshot,
             features,
@@ -3816,6 +3827,7 @@ model_verbosity = "high"
                 forced_login_method: None,
                 include_apply_patch_tool: false,
                 web_search_mode: None,
+                searxng_url: "http://192.168.0.137:8080".to_string(),
                 use_experimental_unified_exec_tool: false,
                 ghost_snapshot: GhostSnapshotConfig::default(),
                 features: Features::with_defaults(),
